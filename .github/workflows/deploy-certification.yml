@@ -1,0 +1,32 @@
+name: Deploy Certification
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-certification
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Certification
+    runs-on: ubuntu-latest
+    environment: certification
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy (placeholder)
+        env:
+          DEPLOY_TOKEN: ${{ secrets.CERT_DEPLOY_TOKEN }}
+        run: |
+          echo "Desplegando commit ${{ github.sha }} a Certification"
+          if [ -z "$DEPLOY_TOKEN" ]; then
+            echo "::warning::CERT_DEPLOY_TOKEN no configurado. Simulando despliegue."
+          else
+            echo "Token presente. Aquí iría el deploy real a certificación."
+          fi
+          echo "status=deployed-cert" >> "$GITHUB_STEP_SUMMARY"

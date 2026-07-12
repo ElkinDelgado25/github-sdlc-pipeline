@@ -1,0 +1,90 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release-and-deploy:
+    name: Tag, Release & Deploy Production
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular versión
+        id: version
+        run: |
+          DATE_PART=$(date -u +%Y.%m.%d)
+          SHORT_SHA=${GITHUB_SHA::7}
+          VERSION="v${DATE_PART}-${SHORT_SHA}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Versión: $VERSION"
+
+      - name: Crear tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "Tag ya existe, se omite creación"
+          else
+            git tag -a "${{ steps.version.outputs.version }}" -m "Release ${{ steps.version.outputs.version }}"
+            git push origin "${{ steps.version.outputs.version }}"
+          fi
+
+      - name: Crear GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "Release ya existe"
+          else
+            gh release create "${{ steps.version.outputs.version }}" \
+              --title "Release ${{ steps.version.outputs.version }}" \
+              --generate-notes \
+              --target main
+          fi
+
+      - name: Deploy a Production
+        env:
+          DEPLOY_TOKEN: ${{ secrets.PROD_DEPLOY_TOKEN }}
+        run: |
+          echo "Desplegando ${{ steps.version.outputs.version }} a Production"
+          if [ -z "$DEPLOY_TOKEN" ]; then
+            echo "::warning::PROD_DEPLOY_TOKEN no configurado. Simulando despliegue."
+          else
+            echo "Token presente. Aquí iría el deploy real a producción."
+          fi
+
+  sync-main-to-develop:
+    name: Sincronizar main → develop
+    needs: release-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge main into develop
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+          git checkout develop
+          git merge --no-ff origin/main -m "chore: sync main into develop after ${{ needs.release-and-deploy.outputs.version }}"
+          git push origin develop

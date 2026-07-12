@@ -1,0 +1,11 @@
+# Default owners — actualizar con los handles reales del equipo
+*       @Mildreth-SC
+
+# Infraestructura y pipelines
+.github/        @Mildreth-SC
+Dockerfile      @Mildreth-SC
+scripts/        @Mildreth-SC
+
+# Código de aplicación
+src/            @Mildreth-SC
+tests/          @Mildreth-SC

@@ -1,0 +1,5 @@
+name: "JavaScript CodeQL"
+paths-ignore:
+  - "node_modules"
+  - "coverage"
+  - "**/*.test.js"

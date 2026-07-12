@@ -1,0 +1,32 @@
+name: Deploy Development
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-development
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy (placeholder)
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
+        run: |
+          echo "Desplegando commit ${{ github.sha }} a Development"
+          if [ -z "$DEPLOY_TOKEN" ]; then
+            echo "::warning::DEV_DEPLOY_TOKEN no configurado. Simulando despliegue."
+          else
+            echo "Token presente. Aquí iría el deploy real (kubectl/helm/SSH/API)."
+          fi
+          echo "status=deployed" >> "$GITHUB_STEP_SUMMARY"
