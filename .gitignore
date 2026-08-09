@@ -11,3 +11,9 @@ sbom.json
 .idea/
 .vscode/
 *.tgz
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

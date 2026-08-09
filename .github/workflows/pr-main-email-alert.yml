@@ -1,0 +1,37 @@
+name: Alerta de PR a main
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  send-email:
+    name: Enviar alerta por correo
+    # Desactivado por defecto. Además, no expone secretos SMTP a PRs desde forks.
+    if: ${{ vars.ENABLE_PR_MAIN_EMAIL_ALERT == 'true' && github.event.pull_request.head.repo.fork == false }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notificar el PR por SMTP
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "[PR #${{ github.event.pull_request.number }} a main] ${{ github.event.pull_request.title }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          body: |
+            Se recibió o actualizó un Pull Request dirigido a main.
+
+            PR: #${{ github.event.pull_request.number }}
+            Título: ${{ github.event.pull_request.title }}
+            Autor: ${{ github.event.pull_request.user.login }}
+            Rama origen: ${{ github.event.pull_request.head.label }}
+            Acción: ${{ github.event.action }}
+            Enlace: ${{ github.event.pull_request.html_url }}

@@ -11,8 +11,8 @@ con environments, branch protection, checks de seguridad y deploys automáticos.
 | Rama | Ambiente | Approvals | Checks clave |
 |------|----------|-----------|--------------|
 | `develop` | Development | 1 | Build & Lint, Pruebas unitarias, CodeQL (SAST rápido) |
-| `staging` | Certification | 2 + Code Owners | Pruebas de integración, Escaneo de dependencias (SCA) |
-| `main` | Production | 2 + Code Owners | Suite completa, SAST completo, SCA bloqueante, secretos, imagen Docker |
+| `staging` | Certification | 2 + Code Owners | Pruebas de integración, Pruebas E2E (Playwright), Escaneo de dependencias (SCA) |
+| `main` | Production | 2 + Code Owners | Suite completa, Pruebas E2E (Playwright), SAST completo, SCA bloqueante, secretos, imagen Docker |
 
 ## 1. Crear las ramas base
 
@@ -66,13 +66,14 @@ $env:QA_LEAD="tu-qa"; $env:TECH_LEAD="tu-tech"; $env:SECURITY_LEAD="tu-sec"
 ### `staging`
 - Require PR → 2 aprobaciones
 - Require review from Code Owners
-- Status checks: `Pruebas de integración`, `Escaneo de dependencias (SCA)`
+- Status checks: `Pruebas de integración`, `Pruebas E2E (Playwright)`,
+  `Escaneo de dependencias (SCA)`
 
 ### `main`
 - Require PR → 2 aprobaciones + Code Owners
-- Status checks: `Suite completa de pruebas`, `SAST completo (CodeQL)`,
-  `Escaneo de dependencias (bloqueante)`, `Escaneo de secretos`,
-  `Escaneo de imagen Docker`
+- Status checks: `Suite completa de pruebas`, `Pruebas E2E (Playwright)`,
+  `SAST completo (CodeQL)`, `Escaneo de dependencias (bloqueante)`,
+  `Escaneo de secretos`, `Escaneo de imagen Docker`
 - Require signed commits
 - Require linear history
 - Do not allow bypassing (incluso admins)
