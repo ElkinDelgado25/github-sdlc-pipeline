@@ -117,7 +117,7 @@ Set-BranchProtection -Branch develop -Payload @{
 Set-BranchProtection -Branch staging -Payload @{
   required_status_checks = @{
     strict = $true
-    contexts = @("Pruebas de integración", "Escaneo de dependencias (SCA)")
+    contexts = @("Pruebas de integración", "Pruebas E2E (Playwright)", "Escaneo de dependencias (SCA)")
   }
   enforce_admins = $true
   required_pull_request_reviews = @{
@@ -139,6 +139,7 @@ Set-BranchProtection -Branch main -Payload @{
     strict = $true
     contexts = @(
       "Suite completa de pruebas",
+      "Pruebas E2E (Playwright)",
       "SAST completo (CodeQL)",
       "Escaneo de dependencias (bloqueante)",
       "Escaneo de secretos",
@@ -213,6 +214,7 @@ if (-not $existing) {
           strict_required_status_checks_policy = $true
           required_status_checks = @(
             @{ context = "Suite completa de pruebas" },
+            @{ context = "Pruebas E2E (Playwright)" },
             @{ context = "SAST completo (CodeQL)" },
             @{ context = "Escaneo de dependencias (bloqueante)" },
             @{ context = "Escaneo de secretos" },

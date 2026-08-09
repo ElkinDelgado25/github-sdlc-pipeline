@@ -14,6 +14,27 @@ npm run lint
 npm run test:all
 ```
 
+## Pruebas E2E con Playwright
+
+```bash
+npx playwright install chromium   # solo la primera vez
+npm run test:e2e                  # ejecuta tests/e2e en chromium
+npm run test:e2e:ui               # modo interactivo para depurar
+npm run test:e2e:report           # abre el último reporte HTML
+```
+
+`playwright.config.js` levanta `node src/server.js` automáticamente antes de
+correr los tests y lo apaga al terminar. Para apuntar a un entorno ya desplegado
+en vez del servidor local, define `E2E_BASE_URL`:
+
+```bash
+E2E_BASE_URL=https://certification.example.com npm run test:e2e
+```
+
+Los specs viven en `tests/e2e/`: `api.spec.js` cubre los endpoints JSON y
+`home.spec.js` la interfaz. El job `Pruebas E2E (Playwright)` corre en los CI de
+`staging` y `main`, y sube el reporte HTML como artefacto.
+
 ## Qué incluye
 
 - Ramas `main`, `develop`, `staging`
